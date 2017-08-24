@@ -6,23 +6,23 @@ EXTRACLEAN ?= none
 	$(ylwrap) $< $*.h $*.$(_hdr_ext) position.hh $*_position.H location.hh $*_location.H stack.hh stack.H -- bison -d -ra -S lalr1.cc -o $*.$(_src_ext)
 
 # Two files are used to support different versions of bison
-%.yy : %.yy_2 %.yy_3 $(COHORT_HOME)/mk/Make.defs
-	@if test "x$(_bison_major)" = "x3"; then \
-          echo "Copying $@_3 to $@"; \
-          cp $@_3 $@; \
-        else \
-          echo "Copying $@_2 to $@"; \
-          cp $@_2 $@; \
-        fi
-
-%.ll : %.ll_2 %.ll_3 $(COHORT_HOME)/mk/Make.defs
-	@if test "x$(_bison_major)" = "x3"; then \
-          echo "Copying $@_3 to $@"; \
-          cp $@_3 $@; \
-        else \
-          echo "Copying $@_2 to $@"; \
-          cp $@_2 $@; \
-        fi
+# %.yy : %.yy_2 %.yy_3 $(COHORT_HOME)/mk/Make.defs
+# 	@if test "x$(_bison_major)" = "x3"; then \
+#           echo "Copying $@_3 to $@"; \
+#           cp $@_3 $@; \
+#         else \
+#           echo "Copying $@_2 to $@"; \
+#           cp $@_2 $@; \
+#         fi
+#
+# %.ll : %.ll_2 %.ll_3 $(COHORT_HOME)/mk/Make.defs
+# 	@if test "x$(_bison_major)" = "x3"; then \
+#           echo "Copying $@_3 to $@"; \
+#           cp $@_3 $@; \
+#         else \
+#           echo "Copying $@_2 to $@"; \
+#           cp $@_2 $@; \
+#         fi
 
 # Lexer
 %.$(_src_ext) : %.ll
@@ -78,7 +78,9 @@ printvars:
 	@echo "Codegen extensions  : $(gen_extensions)"
 	@echo "Base directory      : $(base_dir)"
 	@echo "Source directories  : $(src_dirs)"
-	@echo "Code generation     : $(_base_codegen) $(_codegen)"
+	@echo "Code generation     : $(_base_codegen), $(_codegen)"
+	@echo "_base_codegen_v     : $(_base_codegen_v)"
+	@echo "_codegen_v          : $(_codegen_v)"
 	@echo "Generated sources   : $(_base_gensrcs) $(_gensrcs)"
 	@echo "Generated headers   : $(_base_genhdrs) $(_genhdrs)"
 	@echo "Sources             : $(_base_srcs) $(_srcs)"
@@ -105,7 +107,7 @@ clean:
 	$(ECHO)echo "Cleaning $(ebase)$(lbase)..."
 	$(ECHO)echo ""
 	-$(RM) -r $(_object_prefix) $(_depends_prefix) .dummy $(ebase)
-	-$(RM) $(_codegen) $(_base_codegen) $(_gensrcs) $(_base_gensrcs) $(_genhdrs) $(_base_genhdrs) stack.H
+	-$(RM) $(_gensrcs) $(_base_gensrcs) $(_genhdrs) $(_base_genhdrs) stack.H
 	-$(RM) *~ *.orig *_parser_position.H *_parser_location.H *_parser.output *.dot rose_*.cpp
 	-$(RM) $(EXTRACLEAN)
 	$(ECHO)echo ""

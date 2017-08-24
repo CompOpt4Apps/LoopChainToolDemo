@@ -7,18 +7,19 @@ _lib_prefix       = $(COHORT_HOME)/lib/
 
 src_extensions   := .$(_src_ext)
 gen_extensions   := .yy .ll
-gen_v_extensions := .yy_3 .ll_3
+gen_v_extensions := .yy .ll
+# gen_v_extensions := .yy_3 .ll_3
 
 #--_2 and _3 suffixes along with _v variables are due to files for different
 #--versions of bison.  _yy is the one used.
 
 vpath %.$(_src_ext) $(src_dirs)
 vpath %.yy $(src_dirs)
-vpath %.yy_2 $(src_dirs)
-vpath %.yy_3 $(src_dirs)
 vpath %.ll $(src_dirs)
-vpath %.ll_2 $(src_dirs)
-vpath %.ll_3 $(src_dirs)
+# vpath %.yy_2 $(src_dirs)
+# vpath %.yy_3 $(src_dirs)
+# vpath %.ll_2 $(src_dirs)
+# vpath %.ll_3 $(src_dirs)
 
 #-- Source directories ---------------------------------------------------------
 
@@ -31,8 +32,10 @@ ifneq ($(src_dirs),)
 #--list of code generation files in all the other source directories
 
   _codegen_v := $(notdir $(wildcard $(foreach ext,$(gen_v_extensions),$(addsuffix /*$(ext),$(src_dirs)))))
-  _codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_codegen_v)))) \
-                $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_codegen_v))))
+	_codegen   := $(filter %.yy,$(notdir $(_codegen_v))) \
+                $(filter %.ll,$(notdir $(_codegen_v)))
+	# _codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_codegen_v)))) \
+  #               $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_codegen_v))))
 
 #--list of generated sources
 
@@ -60,8 +63,10 @@ _base_srcs := $(filter-out test% rose_test%,$(notdir $(wildcard $(foreach ext,$(
 #--code generation sources in base
 
 _base_codegen_v := $(notdir $(wildcard $(foreach ext,$(gen_v_extensions),$(addsuffix /*$(ext),$(base_dir)))))
-_base_codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_base_codegen_v)))) \
-                   $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_base_codegen_v))))
+_base_codegen   := $(filter %.yy,$(notdir $(_base_codegen_v))) \
+                   $(filter %.ll,$(notdir $(_base_codegen_v)))
+# _base_codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_base_codegen_v)))) \
+#                    $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_base_codegen_v))))
 
 #--list of generated sources
 
