@@ -1,0 +1,119 @@
+# Safety for clean ops
+EXTRACLEAN ?= none
+
+# Parser
+%.$(_src_ext) %.$(_hdr_ext) : %.yy
+	$(ylwrap) $< $*.h $*.$(_hdr_ext) position.hh $*_position.H location.hh $*_location.H stack.hh stack.H -- bison -d -ra -S lalr1.cc -o $*.$(_src_ext)
+
+# Two files are used to support different versions of bison
+%.yy : %.yy_2 %.yy_3 $(COHORT_HOME)/mk/Make.defs
+	@if test "x$(_bison_major)" = "x3"; then \
+          echo "Copying $@_3 to $@"; \
+          cp $@_3 $@; \
+        else \
+          echo "Copying $@_2 to $@"; \
+          cp $@_2 $@; \
+        fi
+
+%.ll : %.ll_2 %.ll_3 $(COHORT_HOME)/mk/Make.defs
+	@if test "x$(_bison_major)" = "x3"; then \
+          echo "Copying $@_3 to $@"; \
+          cp $@_3 $@; \
+        else \
+          echo "Copying $@_2 to $@"; \
+          cp $@_2 $@; \
+        fi
+
+# Lexer
+%.$(_src_ext) : %.ll
+	$(ylwrap) $< lex.yy.c $@ -- flex
+
+# Code
+$(_object_prefix)%.$(_obj_ext) : %.$(_src_ext) $(_depends_prefix)%.d
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
+
+# Dependencies
+$(_depends_prefix)%.d : %.$(_src_ext) .dummy
+	$(ECHO)$(CSHELLCMD) "$(mkdep) $(CPPFLAGS) $< | $(SED) 's%^.*$*\.o[ :]*%o/$*.o $@ : %g' > $@"
+#       If $(mkdep) failed, sed will still make the output file so delete it
+#	if it is empty
+	$(ECHO)if [ ! -s $@ ]; then $(RM) $@; fi
+
+.PHONY: all lib printvars clean
+.SECONDARY:  $(_codegen) $(_base_codegen) $(gensrcs) $(_base_gensrcs)
+
+# libnames traverses each library first and then we get to the real targets
+all: $(shell $(COHORT_HOME)/mk/reverse $(libnames))
+	@$(MAKE) --no-print-directory $(_lbase) $(ebase)
+
+lib: $(_lbase)
+
+# Build a library
+$(_lbase): $(_base_objs) $(_objs)
+	$(ECHO)echo ""
+	$(ECHO)echo "Assembling $(lbase) library"
+	$(ECHO)echo ""
+	$(AR) $@ $^
+	$(ECHO)echo ""
+
+# The example executable
+$(ebase): $(shell $(COHORT_HOME)/mk/reverse $(_libs)) $(_base_objs) $(_objs)
+	$(ECHO)echo ""
+	$(ECHO)echo "Linking $(ebase) program"
+	$(ECHO)echo ""
+	$(LD) $(CXXFLAGS) -o $@ $(_base_objs) $(_objs) $(LDFLAGS)
+
+$(libnames):
+	@$(MAKE) --no-print-directory --directory=$(COHORT_HOME)/lib $@
+
+# Used when building ebase (the patsub strips to get the basename)
+$(_libs):
+	@echo "Through rules lib... $@"
+	@$(MAKE) --no-print-directory --directory=$(COHORT_HOME)/lib $(patsubst $(_lib_prefix)lib%.$(_lib_ext),%,$@)
+
+printvars:
+	@echo "Home directory      : $(COHORT_HOME)"
+	@echo "Libraries           : $(libnames)"
+	@echo "Source extensions   : $(src_extensions)"
+	@echo "Codegen extensions  : $(gen_extensions)"
+	@echo "Base directory      : $(base_dir)"
+	@echo "Source directories  : $(src_dirs)"
+	@echo "Code generation     : $(_base_codegen) $(_codegen)"
+	@echo "Generated sources   : $(_base_gensrcs) $(_gensrcs)"
+	@echo "Generated headers   : $(_base_genhdrs) $(_genhdrs)"
+	@echo "Sources             : $(_base_srcs) $(_srcs)"
+	@echo "Objects             : $(_base_objs) $(_objs)"
+	@echo "Depends             : $(depends)"
+	@echo "--Variables--"
+	@echo "lbase               : $(lbase)"
+	@echo "ebase               : $(ebase)"
+	@echo "_lib_prefix         : $(_lib_prefix)"
+	@echo "_libs               : $(_libs)"
+	@echo "_lib_dirs           : $(_lib_dirs)"
+	@echo "CXX                 : $(CXX)"
+	@echo "ROSE_BASE           : $(ROSE_BASE)"
+	@echo "CXXFLAGS            : $(CXXFLAGS)"
+	@echo "CPPFLAGS            : $(CPPFLAGS)"
+	@echo "LDFLAGS             : $(LDFLAGS)"
+
+.dummy:
+	$(ECHO)mkdir -p $(_object_prefix) $(_depends_prefix)
+	$(ECHO)touch $@
+
+clean:
+	$(ECHO)echo ""
+	$(ECHO)echo "Cleaning $(ebase)$(lbase)..."
+	$(ECHO)echo ""
+	-$(RM) -r $(_object_prefix) $(_depends_prefix) .dummy $(ebase)
+	-$(RM) $(_codegen) $(_base_codegen) $(_gensrcs) $(_base_gensrcs) $(_genhdrs) $(_base_genhdrs) stack.H
+	-$(RM) *~ *.orig *_parser_position.H *_parser_location.H *_parser.output *.dot rose_*.cpp
+	-$(RM) $(EXTRACLEAN)
+	$(ECHO)echo ""
+
+# Note: dependencies built for _driver.cpp files do not have all dependencies
+#       until generated sources or headers are built.  The driver will not
+#       be recompiled if the parser changes until _driver.cpp is modified.
+#       Then, the dependencies are set correctly.  To alter this, 'mkdep' would
+#       have to be modified to search .yy and .ll files.
+
+-include $(depends)

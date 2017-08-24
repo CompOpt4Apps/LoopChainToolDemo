@@ -1,0 +1,124 @@
+%skeleton "lalr1.cc" /* -*- C++ -*- */
+// Above must be first line: indicate C++ and the skeleton to use
+// Indicate to output a header file and it should be named exactly this
+%defines "ParsePragmaLoopChain_parser.h"
+// The name of the parser class
+%define parser_class_name "ParsePragmaLoopChain_parser"
+%code requires {
+#define yylex loopchainlex
+#include <string>
+//#define YYSTYPE std::string
+struct YYSTYPE
+{
+  std::string str;
+  int inum;
+};
+class ParsePragmaLoopChain_driver;
+}
+// The parsing context.
+%parse-param { ParsePragmaLoopChain_driver& driver }
+%lex-param   { ParsePragmaLoopChain_driver& driver }
+%locations
+%debug
+%error-verbose
+%code {
+#include "ParsePragmaLoopChain_proto.H"
+}
+%token END      0 "end of file"
+%token BEGINLC
+%token ENDLC
+%token FILELC
+%token INLINELC
+%token LOOPLC
+%token STRIPLC
+%token <inum> INT "integer"
+%token <str> STR  "string"
+
+%start loopchain_directive
+
+%%
+
+loopchain_directive:
+  begin_directive
+| end_directive
+| inline_directive
+| loop_directive
+| strip_directive
+;
+
+begin_directive:
+  BEGINLC
+    {
+      /* Begin directives are attached to the pragma statement */
+      driver.setAttachLocation(ParsePragmaBase_driver::AttachToPragma);
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveBegin);
+      CHT::msg << CHT::fv4 << "keyword \'begin\' recognized" << CHT::end;
+    }
+  begin_clause_optseq
+;
+
+begin_clause_optseq:
+  /* empty */
+| file_directive
+;
+
+file_directive:
+  FILELC STR
+    {
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveFile);
+      driver.m_attr->setFile($2);
+      CHT::msg << CHT::fv4 << "keyword \'file\' recognized with value \'"
+               << $2 << '\'' << CHT::end;
+    }
+;
+
+inline_directive:
+  INLINELC
+    {
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveInline);
+      CHT::msg << CHT::fv4 << "keyword \'inline\' recognized" << CHT::end;
+    }
+
+loop_directive:
+  LOOPLC '(' INT ')'
+    {
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveLoop);
+      driver.m_attr->setLinkIndex($3);
+      CHT::msg << CHT::fv4 << "keyword \'loop\' identifying chain " << $3
+               << " recognized" << CHT::end;
+    }
+
+strip_directive:
+  STRIPLC
+    {
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveStrip);
+      CHT::msg << CHT::fv4 << "keyword \'strip\' recognized" << CHT::end;
+    }
+
+end_directive:
+  ENDLC
+    {
+      /* End directives are attached to the pragma statement */
+      driver.setAttachLocation(ParsePragmaBase_driver::AttachToPragma);
+      driver.m_attr->addDirective(
+        LoopChainPragmaAttribute::LoopChainDirectiveEnd);
+      CHT::msg << CHT::fv4 << "keyword \'end\' recognized" << CHT::end;
+    }
+;
+
+%%
+
+// Send errors to the driver.  Error handling is defined in class
+// ParsePragmaBase_driver
+void
+yy::ParsePragmaLoopChain_parser::error(
+  const yy::ParsePragmaLoopChain_parser::location_type& l,
+  const std::string&                                    m)
+{
+  driver.error(m);
+}

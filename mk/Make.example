@@ -1,0 +1,111 @@
+
+include $(COHORT_HOME)/mk/Make.defs
+
+_object_prefix    = o/
+_depends_prefix   = d/
+_lib_prefix       = $(COHORT_HOME)/lib/
+
+src_extensions   := .$(_src_ext)
+gen_extensions   := .yy .ll
+gen_v_extensions := .yy_3 .ll_3
+
+#--_2 and _3 suffixes along with _v variables are due to files for different
+#--versions of bison.  _yy is the one used.
+
+vpath %.$(_src_ext) $(src_dirs)
+vpath %.yy $(src_dirs)
+vpath %.yy_2 $(src_dirs)
+vpath %.yy_3 $(src_dirs)
+vpath %.ll $(src_dirs)
+vpath %.ll_2 $(src_dirs)
+vpath %.ll_3 $(src_dirs)
+
+#-- Source directories ---------------------------------------------------------
+
+ifneq ($(src_dirs),)
+
+#--list of source files in all the other source directories
+
+  _srcs := $(notdir $(wildcard $(foreach ext,$(src_extensions),$(addsuffix /*$(ext),$(src_dirs)))))
+
+#--list of code generation files in all the other source directories
+
+  _codegen_v := $(notdir $(wildcard $(foreach ext,$(gen_v_extensions),$(addsuffix /*$(ext),$(src_dirs)))))
+  _codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_codegen_v)))) \
+                $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_codegen_v))))
+
+#--list of generated sources
+
+  _gensrcs := $(patsubst %.yy,%.$(_src_ext),$(filter %.yy,$(notdir $(_codegen)))) \
+              $(patsubst %.ll,%.$(_src_ext),$(filter %.ll,$(notdir $(_codegen))))
+  _genhdrs := $(patsubst %.yy,%.$(_hdr_ext),$(filter %.yy,$(notdir $(_codegen))))
+
+#--add to sources (sort is used to remove duplicates since vpath will pick up
+#--generated sources if they already exist)
+
+  _srcs := $(sort $(_srcs) $(_gensrcs))
+endif
+
+#--the list of dependency files that Make.rules will need to build, including
+#--files in $base_dir
+
+depends := $(addprefix $(_depends_prefix),$(foreach _ext,$(src_extensions),$(subst $(_ext),.d,$(filter %$(_ext),$(_srcs)))))
+
+#-- Base directory -------------------------------------------------------------
+
+#--no files beginning with 'test' are included in the sources
+
+_base_srcs := $(filter-out test% rose_test%,$(notdir $(wildcard $(foreach ext,$(src_extensions),$(addsuffix /*$(ext),$(base_dir))))))
+
+#--code generation sources in base
+
+_base_codegen_v := $(notdir $(wildcard $(foreach ext,$(gen_v_extensions),$(addsuffix /*$(ext),$(base_dir)))))
+_base_codegen   := $(patsubst %.yy_3,%.yy,$(filter %.yy_3,$(notdir $(_base_codegen_v)))) \
+                   $(patsubst %.ll_3,%.ll,$(filter %.ll_3,$(notdir $(_base_codegen_v))))
+
+#--list of generated sources
+
+_base_gensrcs := $(patsubst %.yy,%.$(_src_ext),$(filter %.yy,$(notdir $(_base_codegen)))) \
+                 $(patsubst %.ll,%.$(_src_ext),$(filter %.ll,$(notdir $(_base_codegen))))
+_base_genhdrs := $(patsubst %.yy,%.$(_hdr_ext),$(filter %.yy,$(notdir $(_base_codegen))))
+
+#--add to base sources (sort is used to remove duplicates since vpath will pick
+#--up generated sources if they already exist)
+
+_base_srcs := $(sort $(_base_srcs) $(_base_gensrcs))
+
+depends += $(addprefix $(_depends_prefix),$(foreach _ext,$(src_extensions),$(subst $(_ext),.d,$(filter %$(_ext),$(_base_srcs)))))
+
+#-- Objects --------------------------------------------------------------------
+
+#--the list of non-base object files that Make.rules will need to build
+
+_objs := $(addprefix $(_object_prefix),$(foreach _ext,$(src_extensions),$(subst $(_ext),.o,$(filter %$(_ext),$(_srcs)))))
+_base_objs := $(addprefix $(_object_prefix),$(foreach _ext,$(src_extensions),$(subst $(_ext),.o,$(filter %$(_ext),$(_base_srcs)))))
+
+#--if building a library, the full library name
+
+ifneq ($(strip $(lbase)),)
+_lbase = $(_lib_prefix)lib$(lbase).$(_lib_ext)
+endif
+
+#--library paths
+
+_libs := $(addprefix $(_lib_prefix)lib,$(addsuffix .$(_lib_ext),$(libnames)))
+
+#--library source directories
+
+_lib_dirs := $(addprefix $(COHORT_HOME)/lib/src/, $(libnames))
+
+#--add libraries to LDFLAGS
+
+ifneq ($(strip $(libnames)),)
+  LDFLAGS := $(LDFLAGS) -L$(_lib_prefix) $(addprefix -l,$(libnames)) $(LDFLAGS)
+endif
+
+
+#--tell Make.rules to search source directories for include files
+
+CPPFLAGS += $(addprefix -I,$(_lib_dirs)) -I$(base_dir) $(addprefix -I,$(src_dirs))
+
+include $(COHORT_HOME)/mk/Make.rules

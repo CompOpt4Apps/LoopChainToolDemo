@@ -1,0 +1,120 @@
+%{ /* -*- C++ -*- */
+#include "ParsePragmaLoopChain_proto.H"
+
+/* Work around an incompatibility in flex (at least versions
+   2.5.31 through 2.5.33): it generates code that does
+   not conform to C89.  See Debian bug 333231
+   <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=333231>.  */
+#undef yywrap
+#define yywrap() 1
+
+/* By default yylex returns int, we use token_type.
+   Unfortunately yyterminate by default returns 0, which is
+   not of token_type.  */
+#define yyterminate() return token::END
+%}
+
+%option prefix="loopchain"
+%option outfile="lex.yy.c"
+%option noyywrap nounput batch debug
+
+/* Definitions
+   id                   Any alphanumeric identifier.  Must start with letter.
+   intnum               Any numeric identifier (no '.')
+   npstr                Any string not containing parenthesis
+   blanks               Blanks
+ */
+id     [a-zA-Z][a-zA-Z_0-9]*
+intnum [0-9]+
+npstr  [^\(\)]*
+blank  [ \t]
+
+/* Start conditions
+   pstropen             Get first '(' while ignoring blanks
+   pstr                 Gather string until closing ')'
+*/
+%x pstropen
+%x pstr
+
+%%
+
+%{
+  int pcount;                         /* Count of parenthesis */
+  int errcount = 0;
+  std::string strbuf;                 /* buffer */
+%}
+
+<INITIAL,pstropen>{blank}+ { }
+
+%{
+  typedef yy::ParsePragmaLoopChain_parser::token token;
+  typedef yy::ParsePragmaLoopChain_parser::token_type token_type;
+%}
+
+[\(\)]                  { return token_type(yytext[0]); }
+begin                   { return token::BEGINLC; }
+end                     { return token::ENDLC; }
+file                    {
+                          BEGIN(pstropen);
+                          return token::FILELC;
+                        }
+inline                  { return token::INLINELC; }
+loop                    { return token::LOOPLC; }
+strip                   { return token::STRIPLC; }
+
+  /* Grab an integer */
+{intnum}                {
+                          yylval->inum = std::atoi(yytext);
+                          return token::INT;
+                        }
+
+  /* Grab everything between parenthesis */
+<pstropen>\(            {
+                          pcount = 1;
+                          errcount = 0;  /* From finding openning */
+                          BEGIN(pstr);
+                          strbuf = '(';
+                        }
+<pstropen>.             {
+                          if (errcount == 0)
+                            {
+                              driver.error("syntax error, expected opening "
+                                           "parenthesis");
+                              ++errcount;
+                            }
+                        }
+<pstr>
+{
+  \(                    {
+                          ++pcount;
+                          strbuf += '(';
+                        }
+  {npstr}               {
+                          strbuf += yytext;
+                        }
+  \)                    {
+                          --pcount;
+                          strbuf += ')';
+                          if (pcount == 0)
+                            {
+                              BEGIN(0);
+                              yylval->str = strbuf;
+                              return token::STR;
+                            }
+                        }
+}
+
+%%
+
+void
+ParsePragmaLoopChain_driver::scan_begin()
+{
+  yy_flex_debug = m_traceScanning;
+  m_bufferStateHandle = (void*)yy_scan_string(m_pragmaStr.c_str());
+}
+
+void
+ParsePragmaLoopChain_driver::scan_end()
+{
+  yy_delete_buffer((YY_BUFFER_STATE)m_bufferStateHandle);
+}

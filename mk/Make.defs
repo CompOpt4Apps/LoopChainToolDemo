@@ -1,0 +1,66 @@
+# Makefile include mk/Make.defs.  Generated from Make.defs.in by configure.
+
+#-----------------------------------------------------------------------
+# CXX       - C++ compiler
+# LD        - linker
+#-----------------------------------------------------------------------
+
+CXX       = g++
+LD        = $(CXX)
+
+#-----------------------------------------------------------------------
+# CXXFLAGS  - C++ compiler flags
+# CPPFLAGS  - preprocessing flags
+# LDFLAGS   - linker flags
+#-----------------------------------------------------------------------
+
+CXXFLAGS := -g -std=c++11
+CPPFLAGS :=
+LDFLAGS  := -lrose -lboost_system -lboost_iostreams -lloopchainIR -lisl -lortools -lz -lrt -pthread
+
+#-----------------------------------------------------------------------
+# Programs found by configure
+# SED       - stream editor
+# CSHELLCMD - C shell processor
+# AR        - library archiver
+# PERL      - Perl processor
+# LEX       - scanner
+# BISON     - parser
+#-----------------------------------------------------------------------
+
+SED          := /bin/sed
+CSHELLCMD    := csh -f -c
+AR           := ar rcs
+PERL         := perl
+LEX          := flex
+BISON        := bison
+_bison_major := 3
+
+#-----------------------------------------------------------------------
+# Hard coded programs
+#-----------------------------------------------------------------------
+
+ECHO      = @#
+mkdep     = $(PERL) $(COHORT_HOME)/mk/mkdep
+ylwrap    = /bin/sh $(COHORT_HOME)/mk/ylwrap
+#DOXYGEN   = doxygen
+#mkdox     = $(DOXYGEN) $(TOPDIR)/doc/cohort.dox.conf
+
+#-----------------------------------------------------------------------
+# Hard coded file extensions
+#-----------------------------------------------------------------------
+
+_hdr_ext  = H
+_src_ext  = cpp
+_obj_ext  = o
+_lib_ext  = a
+
+#--------------------------------------------------------------------
+# installation library name and directories
+#
+# INSTALL      - install command
+# INSTALL_DATA - install data
+#--------------------------------------------------------------------
+
+INSTALL      := /usr/bin/install -c
+INSTALL_DATA := ${INSTALL} -m 644

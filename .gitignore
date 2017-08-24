@@ -1,0 +1,101 @@
+# syntax: glob
+*~
+*.orig
+*.o
+*.d
+*.f
+*.C
+*.s
+*.a
+*F_F.H
+*.cpre
+*.hdf5
+*.cgns
+*.visit
+visitlog.py
+*.mpeg
+*.log
+*.ex
+*.cubin
+*.out
+*.dummy
+*.svn
+*.core
+CVS
+.cvsignore
+*.depend
+*.output
+*.hh
+*.dot
+
+# Docs
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.ps
+*.eps
+*.pdf
+*.log
+*.bak
+*.sav
+*.synctex
+*.ti
+
+# Ignore files starting with # and .#
+# syntax: regexp
+^.*?/\#[^/]*$
+^.*?/\.\#[^/]*$
+
+# Exclude autoconf
+# syntax: regexp
+^autom4te.cache
+^config.status
+^mk/Make.defs$
+^lib/src/BaseTools/CHTconfig.H$
+
+# Since all parsers and scanners are copied from a version....
+# syntax: regexp
+^.*\.yy$
+^.*\.ll$
+
+# Ignore o p d f directories
+# syntax: regexp
+^.*?/[opdf]/
+
+# Exclude generate parser and scanner
+# syntax: regexp
+^.*_parser.*(\.cpp|\.H)
+^.*_scanner.*(\.cpp|\.H)
+^.*/stack.H
+
+# Exclude generated rose files
+# syntax: regexp
+^.*/rose_[^/]*\.cpp
+^.*/*temp_test_[^/]*\.cpp
+^.*/*temp_rose_[^/]*\.cpp
+^.*/*quark_temp[^/]*\.cpp
+^.*/rose_[^/]*\.c
+^.*/rose_[^/]*\.f
+
+# Exclude pdfs of the AST
+^.*/test/.*?\.pdf
+
+# Exclude doxygen output
+# syntax: regexp
+^doc/code
+
+# Exclude documentation
+# syntax: regexp
+^doc/.*\.pdf
+^html/*
+
+# Exclude executables
+# syntax: regexp
+^translators/cohort/cohort$
+^translators/identity/identity$
+^translators/quark/quarktran$
+^translators/simple/simple$
+^translators/translateTasks/translatetasks$
+^translators/chloopchain/chloopchain$
+^translators/f2c/f2c$
