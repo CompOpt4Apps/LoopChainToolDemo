@@ -12,15 +12,15 @@
     Installing from prebuilt is easiest, but may not be supported.
 
 2. Run (or rerun) `configure` in the Cohort root directory.
-3. In the `omplc_tool` directory (or using `the -C option`) run `make`.  
+3. In the `lctool` directory (or using `the -C option`) run `make`.  
    This will build the translator and all necessary libraries, so it is suggested that the `-j` option is used with an appropriate number of make jobs (such as number of cores).
 
 ## Using the translator
 
 The translator is simply run:  
-`./omplc_tool/omplc_tool <Input Source File>`  
+`./loopchaintooldemo/lctool <Input Source File>`  
 It is suggested that the translator be run from a directory that **does not** contain source code, since the test generates a number of files, including `.cpp` files, which might confuse the build-process and generally be a pain to remove by hand.
-Additionally, having `Cohort/translators/omplc_tool` in your `PATH` environment variable, or creating a symlink to the `omplc_tool` executable in a project directory, can make this easier.
+Additionally, having `LoopChainToolDemo/src/` in your `PATH` environment variable, or creating a symlink to the `lctool` executable in a project directory, can make this easier.
 
 The translator can be run in verbose mode using the `-v N` option, where N is an integer in 0..5 (lowest..highest).
 
@@ -29,7 +29,7 @@ There is also a `.ti` file created by Rose for an unknown purpose (and can be su
 
 ### Input
 
-Inputs are C++ files with the omplc annotations
+Inputs are C++ files with the `omplc` annotations
 
 For example:
 ```cpp

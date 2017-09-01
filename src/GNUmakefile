@@ -1,7 +1,7 @@
 COHORT_HOME = ..
 
 # Executable name
-ebase = omplc_tool
+ebase = lctool
 
 # Base directory
 base_dir = .

@@ -58,11 +58,3 @@ lib/src/BaseTools/CHTconfig.H
 */p/
 */d/
 */f/
-
-# Exclude generate parser and scanner
-# syntax: regexp
-*_parser*.cpp
-*_parser*.H
-*_scanner.*.cpp
-*_scanner.*.H
-*/stack.H
