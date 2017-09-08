@@ -1,0 +1,39 @@
+[
+    {
+      "name" : "loopchainir",
+      "method" : "git",
+      "url" : "https://github.com/CompOpt4Apps/LoopChainIR.git"
+    },
+    {
+      "name" : "or-tools",
+      "method" : "git",
+      "url" : "https://github.com/google/or-tools.git",
+      "tag" : "v6.2"
+    },
+    {
+      "name" : "rose",
+      "method" : "git",
+      "url" : "https://github.com/rose-compiler/rose.git",
+      "tag" : "v0.9.9.0"
+    },
+    {
+      "name" : "boost",
+      "method" : "wget",
+      "url" : "https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz",
+      "archive_info" : {
+        "name": "boost_1_61_0.tar.gz",
+        "type" : "tar",
+        "root_dir" : "boost_1_61_0"
+      }
+    },
+    {
+      "name" : "isl",
+      "method" : "wget",
+      "url" : "http://isl.gforge.inria.fr/isl-0.18.tar.gz",
+      "archive_info" : {
+        "name": "isl-0.18.tar.gz",
+        "type" : "tar",
+        "root_dir" : "isl-0.18"
+      }
+    }
+]
