@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-COPY ../local_build_generator /tmp/generator_dir
+COPY ./local_build_generator /tmp/generator_dir
 
 COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 
@@ -25,9 +25,9 @@ RUN apt update && \
       cp -r /tmp/build_dir/install/* /usr/. && \
     cd /tmp/ && \
       git clone https://github.com/CompOpt4Apps/LoopChainToolDemo.git && \
-    cd /tmp/OpenMP_LoopChain_Tool_Demo && \
+    cd /tmp/LoopChainToolDemo && \
       ./configure && \
-      make -C omplc_tool && \
+      make -C src && \
       cp src/lctool /usr/bin/. && \
     apt remove --purge \
       mercurial git subversion wget \

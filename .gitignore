@@ -27,6 +27,7 @@ CVS
 *.output
 *.hh
 *.dot
+lctool
 
 # Docs
 *.aux

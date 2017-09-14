@@ -42,7 +42,7 @@ $(SENTINELS)/rose: $(addprefix $(SENTINELS)/,boost)
 	patch ./config/support-java.m4 $(PATCH)/support-java.m4.openjdk_fix.patch && \
 	./build && \
 	cd ../rose_build && \
-	../rose/configure --without-java --without-doxygen --without-gfortran --without-php --with-boost=$(INSTALL) --prefix=$(INSTALL) && \
+	../rose/configure --without-java --without-doxygen --without-gfortran --without-php --disable-tutorial-directory --with-boost=$(INSTALL) --prefix=$(INSTALL) && \
 	make -j$(JOBS) && \
 	make install && \
 	cp -rf $(INSTALL)/include/rose/* $(INSTALL)/include/. && \
