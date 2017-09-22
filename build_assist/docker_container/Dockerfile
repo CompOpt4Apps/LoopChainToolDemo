@@ -4,9 +4,9 @@ COPY ./local_build_generator /tmp/generator_dir
 
 COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 
-RUN apt update && \
-    apt upgrade -y && \
-    apt install \
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install \
       mercurial git subversion wget \
       csh \
       tar unzip \
@@ -16,7 +16,7 @@ RUN apt update && \
       libarchive-dev libbz2-dev libgmp-dev libgmp10 libgmpxx4ldbl zlib1g zlib1g-dev \
       lsb-release ghostscript \
       -y && \
-    apt autoremove -y && \
+    apt-get autoremove -y && \
     ln -s $(which g++-5) /usr/bin/g++ && \
     cd /tmp/generator_dir && \
       ./generate_local_build.sh && \
@@ -29,7 +29,7 @@ RUN apt update && \
       ./configure && \
       make -C src && \
       cp src/lctool /usr/bin/. && \
-    apt remove --purge \
+    apt-get remove --purge \
       mercurial git subversion wget \
       csh \
       unzip \
@@ -39,8 +39,8 @@ RUN apt update && \
       libarchive-dev libbz2-dev zlib1g-dev \
       lsb-release ghostscript \
       -y && \
-    apt clean autoclean && \
-    apt autoremove -y && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/ && \
     rm -rf /tmp/*
 
