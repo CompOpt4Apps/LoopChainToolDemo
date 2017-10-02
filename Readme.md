@@ -2,12 +2,12 @@
 
 ## How to Try
 There are two ways to try this demo:
-1. Build from source and run the executable.
-   This can be difficult because of the dependencies.
+1. Build from source and run the executable. See section 'Setup and Build'
 2. Run from docker.
    This is easier an can be completed with:
    ```
-   ./make_image.sh
+   cd build_assist/docker_container;
+   ./make_image.sh # This requires root privledges
    cat path/to/source/file.cpp | sudo docker run -i compopt4apps/loopchaintooldemo > path/to/output/file.cpp
    ```
    See the `build_assist/docker_container` Readme for details.
